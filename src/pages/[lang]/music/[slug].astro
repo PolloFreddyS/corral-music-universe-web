@@ -1,0 +1,454 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import Artwork from '~/components/Artwork.astro';
+import ListenLinks from '~/components/ListenLinks.astro';
+import ReleaseCard from '~/components/ReleaseCard.astro';
+import SpotifyEmbed from '~/components/SpotifyEmbed.astro';
+import { ui, locales, type Locale } from '~/i18n/ui';
+import { getPublicReleases, verifiedLinks, formatDate, type Release } from '~/lib/releases';
+import { pagePath, releasePath } from '~/lib/paths';
+import book from '~/data/book.json';
+
+export async function getStaticPaths() {
+  // getPublicReleases() already excludes drafts, scheduled, archived, unapproved and future-dated entries,
+  // so no page is ever generated for them.
+  const releases = await getPublicReleases();
+  return locales.flatMap((lang) =>
+    releases.map((release, i) => ({
+      params: { lang, slug: release.id },
+      props: {
+        release,
+        // releases are newest-first: "previous" = older, "next" = newer
+        prev: releases[i + 1],
+        next: releases[i - 1],
+        related: releases.filter((r) => r.id !== release.id).slice(0, 3),
+      },
+    })),
+  );
+}
+
+interface Props {
+  release: Release;
+  prev?: Release | undefined;
+  next?: Release | undefined;
+  related: Release[];
+}
+
+const { release, prev, next, related } = Astro.props;
+const locale = Astro.params.lang as Locale;
+const t = ui[locale];
+const d = release.data;
+const links = verifiedLinks(release);
+const poems = d.tracklist.filter((tr) => tr.literarySource);
+const hasPoems = poems.length > 0 && d.literarySourceBook === 'la-formula-del-verso';
+const desc = d.description?.[locale] ?? `${t[`type.${d.type}`]} — Corral Music Universe, ${d.releaseDate.slice(0, 4)}.`;
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'MusicAlbum',
+  name: d.title,
+  byArtist: { '@type': 'MusicGroup', name: 'Corral Music Universe' },
+  datePublished: d.releaseDate,
+  albumReleaseType: d.type === 'single' ? 'SingleRelease' : d.type === 'ep' ? 'EPRelease' : 'AlbumRelease',
+  numTracks: d.tracklist.length,
+  track: d.tracklist.map((tr, i) => ({ '@type': 'MusicRecording', name: tr.title, position: i + 1 })),
+  sameAs: links.map((l) => l.url),
+};
+---
+
+<BaseLayout locale={locale} title={d.title} description={desc} path={`music/${release.id}/`} ogType="music.album">
+  <script slot="head" type="application/ld+json" set:html={JSON.stringify(jsonLd).replace(/</g, '\u003c')} />
+
+  <article class="release">
+    <header class="wrap release-head">
+      <div class="art-col">
+        <Artwork
+          title={d.title}
+          id={release.id}
+          file={d.artwork}
+          locale={locale}
+          sizes="(max-width: 860px) 88vw, 560px"
+          widths={[360, 480, 640]}
+          eager
+        />
+      </div>
+      <div class="info-col">
+        <a class="back meta" href={pagePath(locale, 'music')}><span aria-hidden="true">←</span> {t['release.back']}</a>
+        <p class="kicker">{t[`type.${d.type}`]}</p>
+        <h1 class="title">{d.title}</h1>
+        <p class="meta">
+          {t['release.released']}
+          <time datetime={d.releaseDate}>{formatDate(d.releaseDate, locale)}</time>
+        </p>
+        {d.description && <p class="desc">{d.description[locale]}</p>}
+        <ListenLinks links={links} locale={locale} />
+      </div>
+    </header>
+
+    <div class="wrap body">
+      <section class="tracks" aria-labelledby="tracklist">
+        <h2 id="tracklist" class="h2">{t['release.tracklist']}</h2>
+        <ol class="tracklist">
+          {
+            d.tracklist.map((tr, i) => (
+              <li>
+                <span class="n" aria-hidden="true">
+                  {String(i + 1).padStart(2, '0')}
+                </span>
+                <span class="tt">
+                  <span class="track-title">{tr.title}</span>
+                  {tr.literarySource && (
+                    <span class="poem">
+                      {t['release.fromPoem']} <cite lang="es">{tr.literarySource}</cite>
+                    </span>
+                  )}
+                </span>
+                {tr.duration && <span class="dur">{tr.duration}</span>}
+              </li>
+            ))
+          }
+        </ol>
+      </section>
+
+      <div class="side">
+        {
+          d.story && (
+            <section aria-labelledby="story">
+              <h2 id="story" class="h2">
+                {t['release.story']}
+              </h2>
+              <div class="prose">
+                <p>{d.story[locale]}</p>
+              </div>
+            </section>
+          )
+        }
+
+        {
+          hasPoems && (
+            <section class="poems-callout" aria-labelledby="poems">
+              <h2 id="poems" class="h3">
+                {t['release.poemsHeading']}
+              </h2>
+              <p>
+                {t['release.poemsBody']}{' '}
+                <a href={pagePath(locale, 'book')}><cite lang="es">{book.title}</cite></a>.
+              </p>
+            </section>
+          )
+        }
+
+        {
+          d.spotifyEmbedId && (
+            <section aria-labelledby="player">
+              <h2 id="player" class="h2">
+                {t['release.player']}
+              </h2>
+              <SpotifyEmbed id={d.spotifyEmbedId} title={d.title} locale={locale} height={d.tracklist.length > 1 ? 452 : 152} />
+            </section>
+          )
+        }
+
+        <section aria-labelledby="credits">
+          <h2 id="credits" class="h2">{t['release.credits']}</h2>
+          {
+            d.credits.length > 0 ? (
+              <dl class="credits">
+                {d.credits.map((c) => (
+                  <div>
+                    <dt>{c.role[locale]}</dt>
+                    <dd>{c.name}</dd>
+                  </div>
+                ))}
+              </dl>
+            ) : (
+              <p class="muted">{t['release.creditsPending']}</p>
+            )
+          }
+          {d.copyright && <p class="meta copyright">{d.copyright}</p>}
+        </section>
+      </div>
+    </div>
+
+    {
+      (prev || next) && (
+        <nav class="wrap pager" aria-label={`${t['release.prev']} / ${t['release.next']}`}>
+          {prev ? (
+            <a class="pg prev" href={releasePath(locale, prev.id)} rel="prev">
+              <span class="meta">← {t['release.prev']}</span>
+              <span class="pg-title">{prev.data.title}</span>
+            </a>
+          ) : (
+            <span />
+          )}
+          {next && (
+            <a class="pg next" href={releasePath(locale, next.id)} rel="next">
+              <span class="meta">{t['release.next']} →</span>
+              <span class="pg-title">{next.data.title}</span>
+            </a>
+          )}
+        </nav>
+      )
+    }
+
+    {
+      related.length > 0 && (
+        <section class="related" aria-labelledby="related">
+          <div class="wrap">
+            <h2 id="related" class="h2">
+              {t['release.related']}
+            </h2>
+            <div class="rel-grid">
+              {related.map((r, i) => (
+                <ReleaseCard release={r} locale={locale} index={i} />
+              ))}
+            </div>
+          </div>
+        </section>
+      )
+    }
+  </article>
+</BaseLayout>
+
+<style>
+  .release-head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: clamp(2rem, 5vw, 5rem);
+    align-items: end;
+    padding-block: clamp(2rem, 5vw, 5rem);
+  }
+
+  .art-col {
+    max-width: 600px;
+  }
+
+  .back {
+    display: flex;
+    width: fit-content;
+    gap: 0.5rem;
+    min-height: 44px;
+    align-items: center;
+    text-decoration: none;
+    margin-bottom: 2rem;
+  }
+
+  .back:hover {
+    color: var(--bone);
+  }
+
+  .title {
+    font-size: var(--step-4);
+    font-weight: 400;
+    letter-spacing: -0.03em;
+    line-height: 0.95;
+    margin-bottom: 1rem;
+    text-wrap: balance;
+    overflow-wrap: anywhere;
+  }
+
+  .desc {
+    font-size: var(--step-1);
+    line-height: 1.45;
+    max-width: 40ch;
+    margin: 1.5rem 0 2rem;
+    color: color-mix(in srgb, var(--bone) 88%, var(--ink));
+  }
+
+  .info-col .meta + :global(.listen) {
+    margin-top: 2rem;
+  }
+
+  .body {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr);
+    gap: clamp(2.5rem, 6vw, 6rem);
+    padding-block: clamp(2rem, 5vw, 4rem) var(--section);
+    border-top: 1px solid var(--line);
+  }
+
+  .h2 {
+    font-size: var(--step-2);
+    font-weight: 400;
+    margin-bottom: 1.5rem;
+  }
+
+  .h3 {
+    font-size: var(--step-1);
+    font-weight: 500;
+    margin-bottom: 0.75rem;
+  }
+
+  .side {
+    display: grid;
+    gap: 3rem;
+    align-content: start;
+  }
+
+  .tracklist {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .tracklist li {
+    display: grid;
+    grid-template-columns: 2.75rem minmax(0, 1fr) auto;
+    gap: 1rem;
+    align-items: baseline;
+    padding: 1.05rem 0;
+    border-bottom: 1px solid var(--line);
+    transition: background-color var(--dur-1) ease;
+  }
+
+  .tracklist li:hover {
+    background: linear-gradient(90deg, rgb(179 38 30 / 0.08), transparent 70%);
+  }
+
+  .n,
+  .dur {
+    font-size: var(--step--1);
+    color: var(--bone-dim);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0.08em;
+  }
+
+  .n {
+    color: var(--gold);
+  }
+
+  .track-title {
+    display: block;
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    line-height: 1.25;
+  }
+
+  .poem {
+    display: block;
+    margin-top: 0.25rem;
+    font-size: var(--step--1);
+    color: var(--bone-dim);
+  }
+
+  .poem cite {
+    font-family: var(--font-display);
+    font-style: italic;
+    color: var(--bone);
+  }
+
+  .poems-callout {
+    padding: 1.5rem;
+    border-left: 2px solid var(--gold);
+    background: var(--ink-2);
+  }
+
+  .poems-callout p {
+    margin: 0;
+    color: var(--bone-dim);
+  }
+
+  .poems-callout a {
+    color: var(--bone);
+  }
+
+  .credits {
+    margin: 0;
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  .credits div {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+
+  .credits dt {
+    color: var(--bone-dim);
+  }
+
+  .credits dd {
+    margin: 0;
+  }
+
+  .muted {
+    color: var(--bone-dim);
+  }
+
+  .copyright {
+    margin-top: 1rem;
+  }
+
+  .pager {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    padding-bottom: var(--section);
+  }
+
+  .pg {
+    display: grid;
+    gap: 0.5rem;
+    padding: 1.5rem 0;
+    border-top: 1px solid var(--line);
+    text-decoration: none;
+  }
+
+  .pg.next {
+    text-align: right;
+    grid-column: 2;
+  }
+
+  .pg-title {
+    font-family: var(--font-display);
+    font-size: var(--step-2);
+    line-height: 1.1;
+    transition: color var(--dur-1) ease;
+  }
+
+  .pg:hover .pg-title {
+    color: #fff;
+  }
+
+  .related {
+    background: var(--ink-2);
+    border-top: 1px solid var(--line);
+    padding-block: var(--section);
+  }
+
+  .rel-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: clamp(1.25rem, 2.5vw, 2.25rem);
+  }
+
+  @media (max-width: 860px) {
+    .release-head,
+    .body {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .release-head {
+      align-items: start;
+    }
+
+    .rel-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .rel-grid > :global(:nth-child(3)) {
+      display: none;
+    }
+  }
+
+  @media (max-width: 520px) {
+    .pager {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .pg.next {
+      grid-column: 1;
+    }
+  }
+</style>

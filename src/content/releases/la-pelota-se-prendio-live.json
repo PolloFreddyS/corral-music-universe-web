@@ -1,0 +1,29 @@
+{
+  "title": "La Pelota Se Prendio (Live)",
+  "type": "single",
+  "releaseDate": "2026-10-26",
+  "status": "published",
+  "approved": true,
+  "language": "es",
+  "artwork": "la-pelota-se-prendio-live.jpg",
+  "tracklist": [
+    {
+      "title": "La Pelota Se Prendio - Live",
+      "duration": "4:31"
+    }
+  ],
+  "copyright": "℗ © 2026 Corral Music Universe",
+  "links": {
+    "spotify": {
+      "url": "https://open.spotify.com/album/5joDlrHqr6ITxwDz4fDigR",
+      "verified": true,
+      "verifiedOn": "2026-11-25"
+    },
+    "appleMusic": {
+      "url": "https://music.apple.com/us/album/la-pelota-se-prendio-live-single/6827091119",
+      "verified": true,
+      "verifiedOn": "2026-11-25"
+    }
+  },
+  "spotifyEmbedId": "5joDlrHqr6ITxwDz4fDigR"
+}

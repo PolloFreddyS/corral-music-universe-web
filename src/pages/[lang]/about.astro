@@ -1,0 +1,154 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { ui, locales, type Locale, type UIKey } from '~/i18n/ui';
+import { pagePath } from '~/lib/paths';
+
+export function getStaticPaths() {
+  return locales.map((lang) => ({ params: { lang } }));
+}
+
+const locale = Astro.params.lang as Locale;
+const t = ui[locale];
+
+const chapters: { h: UIKey; p: UIKey }[] = [
+  { h: 'about.h.origin', p: 'about.p.origin' },
+  { h: 'about.h.direction', p: 'about.p.direction' },
+  { h: 'about.h.ai', p: 'about.p.ai' },
+  { h: 'about.h.range', p: 'about.p.range' },
+  { h: 'about.h.two', p: 'about.p.two' },
+  { h: 'about.h.gallos', p: 'about.p.gallos' },
+  { h: 'about.h.vision', p: 'about.p.vision' },
+];
+const facts: UIKey[] = ['about.fact.independent', 'about.fact.human', 'about.fact.ai', 'about.fact.languages'];
+---
+
+<BaseLayout locale={locale} title={t['about.title']} description={t['about.lede']} path="about/">
+  <section class="section intro">
+    <div class="wrap">
+      <p class="kicker">{t['about.kicker']}</p>
+      <h1 class="big">{t['about.lede']}</h1>
+    </div>
+  </section>
+
+  <section class="chapters">
+    <div class="wrap">
+      {
+        chapters.map((c, i) => (
+          <section class="chapter" data-reveal aria-labelledby={`ch-${i}`}>
+            <span class="num" aria-hidden="true">
+              {String(i + 1).padStart(2, '0')}
+            </span>
+            <h2 id={`ch-${i}`}>{t[c.h]}</h2>
+            <div class="prose">
+              <p>
+                {i === 0 ? (
+                  <>
+                    {t[c.p].split('La Fórmula del Verso')[0]}
+                    <a href={pagePath(locale, 'book')}>
+                      <cite lang="es">La Fórmula del Verso</cite>
+                    </a>
+                    {t[c.p].split('La Fórmula del Verso')[1]}
+                  </>
+                ) : (
+                  t[c.p]
+                )}
+              </p>
+            </div>
+          </section>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="section facts-wrap" aria-labelledby="facts">
+    <div class="wrap">
+      <h2 id="facts" class="kicker">{t['about.factsHeading']}</h2>
+      <ul class="facts" role="list">
+        {facts.map((f, i) => <li data-reveal data-ri={i}>{t[f]}</li>)}
+      </ul>
+      <a class="btn btn--primary" href={pagePath(locale, 'music')}>
+        {t['nav.music']} <span class="arrow" aria-hidden="true">→</span>
+      </a>
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .intro {
+    padding-bottom: clamp(2rem, 4vw, 4rem);
+  }
+
+  .big {
+    font-size: var(--step-4);
+    font-weight: 350;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    max-width: 18ch;
+    text-wrap: balance;
+  }
+
+  .chapter {
+    display: grid;
+    grid-template-columns: 5rem minmax(0, 0.9fr) minmax(0, 1.3fr);
+    gap: clamp(1rem, 4vw, 4rem);
+    padding-block: clamp(2rem, 4vw, 3.5rem);
+    border-top: 1px solid var(--line);
+  }
+
+  .num {
+    font-size: var(--step--1);
+    letter-spacing: 0.16em;
+    color: var(--gold);
+    padding-top: 0.5rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .chapter h2 {
+    font-size: var(--step-2);
+    font-weight: 400;
+  }
+
+  .chapter .prose p {
+    font-size: var(--step-1);
+    line-height: 1.55;
+    margin: 0;
+  }
+
+  .chapter:nth-child(3) h2 {
+    color: var(--gold);
+  }
+
+  .facts-wrap {
+    border-top: 1px solid var(--line);
+    background: var(--ink-2);
+  }
+
+  .facts {
+    list-style: none;
+    padding: 0;
+    margin: 0 0 3rem;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 0;
+    border-top: 1px solid var(--line);
+  }
+
+  .facts li {
+    font-family: var(--font-display);
+    font-size: var(--step-2);
+    line-height: 1.2;
+    padding: 1.75rem 2rem 1.75rem 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  @media (max-width: 860px) {
+    .chapter {
+      grid-template-columns: minmax(0, 1fr);
+      gap: 0.75rem;
+    }
+
+    .facts {
+      grid-template-columns: minmax(0, 1fr);
+    }
+  }
+</style>

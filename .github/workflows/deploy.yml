@@ -1,0 +1,71 @@
+name: Deploy to GitHub Pages
+
+# NOTHING here deploys until the owner approves the launch by setting the
+# repository variable PAGES_DEPLOY_APPROVED = "true".
+# After launch:
+#   - every merge to main publishes (e.g. approving a "New release(s)" PR),
+#   - a daily rebuild makes releases dated in the future appear on their day,
+#   - a manual run requires typing the confirmation phrase.
+on:
+  push:
+    branches: [main]
+  schedule:
+    - cron: '15 5 * * *' # daily 05:15 UTC
+  workflow_dispatch:
+    inputs:
+      confirm:
+        description: 'Type "PUBLISH CMU" to confirm the owner approved this public deployment'
+        required: true
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: ${{ vars.PAGES_DEPLOY_APPROVED == 'true' && (github.event_name != 'workflow_dispatch' || inputs.confirm == 'PUBLISH CMU') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - run: npm run lint
+      - run: npm run check
+      - run: npm test
+      - name: Launch-readiness gate (must pass)
+        run: npm run check:launch
+      - name: Build
+        env:
+          # Custom domain: set repo variables SITE_URL=https://your.domain and BASE_PATH=/
+          SITE_URL: ${{ vars.SITE_URL || format('https://{0}.github.io', github.repository_owner) }}
+          BASE_PATH: ${{ vars.BASE_PATH || format('/{0}', github.event.repository.name) }}
+        run: npm run build
+      - name: Link check
+        env:
+          BASE_PATH: ${{ vars.BASE_PATH || format('/{0}', github.event.repository.name) }}
+        run: npm run check:links
+      - uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3
+        with:
+          path: dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@d6db90164ac5ed86f2b6aed7e0febac5b3c0c03e # v4

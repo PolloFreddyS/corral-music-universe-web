@@ -1,0 +1,348 @@
+---
+import { Image } from 'astro:assets';
+import logo from '~/assets/brand/cmu-logo-official.png';
+import { ui, otherLocale, type Locale } from '~/i18n/ui';
+import { pagePath, swapLocale, type PageKey } from '~/lib/paths';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const t = ui[locale];
+const other = otherLocale(locale);
+const items: { key: PageKey; label: string }[] = [
+  { key: 'music', label: t['nav.music'] },
+  { key: 'about', label: t['nav.about'] },
+  { key: 'book', label: t['nav.book'] },
+  { key: 'links', label: t['nav.links'] },
+];
+const here = Astro.url.pathname;
+const isCurrent = (key: PageKey) => {
+  const p = pagePath(locale, key);
+  return key === 'music' ? here.startsWith(p) : here === p;
+};
+const switchHref = swapLocale(here, other);
+---
+
+<header class="site-header">
+  <div class="bar wrap">
+    <a class="brand" href={pagePath(locale, 'home')} aria-label={`Corral Music Universe — ${t['nav.home']}`}>
+      <Image src={logo} alt="" width={52} height={52} densities={[1, 2]} loading="eager" class="brand-mark" />
+      <span class="brand-word" aria-hidden="true">Corral <em>Music Universe</em></span>
+    </a>
+
+    <nav class="nav" aria-label={t['nav.label']}>
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="site-menu" data-menu-toggle>
+        <span class="menu-label-open">{t['nav.menu']}</span>
+        <span class="menu-label-close">{t['nav.close']}</span>
+        <span class="menu-icon" aria-hidden="true"><i></i><i></i></span>
+      </button>
+      <ul id="site-menu" class="menu" data-menu>
+        {
+          items.map((it, i) => (
+            <li data-i={i}>
+              <a href={pagePath(locale, it.key)} aria-current={isCurrent(it.key) ? 'page' : undefined}>
+                {it.label}
+              </a>
+            </li>
+          ))
+        }
+        <li class="lang" data-i={items.length}>
+          <span class="visually-hidden">{t['lang.label']}:</span>
+          <span class="lang-current" aria-current="true" lang={locale}>{locale.toUpperCase()}</span>
+          <span class="lang-sep" aria-hidden="true">/</span>
+          <a href={switchHref} hreflang={other} lang={other} data-lang-switch={other} title={t['lang.switchTo']}>
+            <span aria-hidden="true">{other.toUpperCase()}</span>
+            <span class="visually-hidden">{t['lang.switchTo']}</span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </div>
+</header>
+
+<script>
+  function initMenu() {
+    const btn = document.querySelector<HTMLButtonElement>('[data-menu-toggle]');
+    const menu = document.querySelector<HTMLElement>('[data-menu]');
+    if (!btn || !menu || btn.dataset['bound']) return;
+    btn.dataset['bound'] = '1';
+    const set = (open: boolean) => {
+      btn.setAttribute('aria-expanded', String(open));
+      document.documentElement.classList.toggle('menu-open', open);
+    };
+    btn.addEventListener('click', () => set(btn.getAttribute('aria-expanded') !== 'true'));
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && btn.getAttribute('aria-expanded') === 'true') {
+        set(false);
+        btn.focus();
+      }
+    });
+    document.addEventListener('astro:after-swap', () => set(false));
+  }
+  document.addEventListener('astro:page-load', initMenu);
+</script>
+
+<style>
+  .site-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: color-mix(in srgb, var(--ink) 82%, transparent);
+    backdrop-filter: blur(10px) saturate(1.1);
+    -webkit-backdrop-filter: blur(10px) saturate(1.1);
+    border-bottom: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
+  }
+
+  .bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    min-height: 72px;
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    text-decoration: none;
+    min-height: 48px;
+  }
+
+  .brand :global(.brand-mark) {
+    width: 52px;
+    height: 52px;
+    border-radius: 50%;
+    transition: transform var(--dur-2) var(--ease-out);
+  }
+
+  .brand:hover :global(.brand-mark) {
+    transform: rotate(-6deg) scale(1.04);
+  }
+
+  .brand-word {
+    font-family: var(--font-display);
+    font-size: 1.15rem;
+    font-weight: 600;
+    letter-spacing: 0.01em;
+    line-height: 1;
+  }
+
+  .brand-word em {
+    display: block;
+    font-family: var(--font-text);
+    font-style: normal;
+    font-size: 0.62rem;
+    font-weight: 600;
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-top: 0.3rem;
+  }
+
+  .menu {
+    display: flex;
+    align-items: center;
+    gap: clamp(1rem, 2vw, 2.25rem);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+
+  .menu a {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    text-decoration: none;
+    color: var(--bone-dim);
+    transition: color var(--dur-1) ease;
+  }
+
+  .menu a:hover,
+  .menu a[aria-current='page'] {
+    color: var(--bone);
+  }
+
+  .menu a::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 8px;
+    height: 1px;
+    background: var(--oxblood);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform var(--dur-2) var(--ease-out);
+  }
+
+  .menu a:hover::after,
+  .menu a[aria-current='page']::after {
+    transform: scaleX(1);
+  }
+
+  .lang {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding-left: clamp(0.75rem, 1.5vw, 1.5rem);
+    border-left: 1px solid var(--line);
+    font-size: 0.78rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+  }
+
+  .lang-current {
+    color: var(--bone);
+  }
+
+  .lang-sep {
+    color: var(--line);
+  }
+
+  .lang a {
+    min-width: 44px;
+    justify-content: center;
+  }
+
+  .menu-toggle {
+    display: none;
+  }
+
+  @media (max-width: 860px) {
+    .brand-word {
+      font-size: 1rem;
+    }
+
+    .menu-toggle {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.75rem;
+      min-height: 48px;
+      padding: 0 0.25rem 0 0.75rem;
+      background: none;
+      border: 0;
+      color: var(--bone);
+      font: 600 0.75rem/1 var(--font-text);
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      cursor: pointer;
+      position: relative;
+      z-index: 2;
+    }
+
+    .menu-label-close {
+      display: none;
+    }
+
+    :global(html.menu-open) .menu-label-open {
+      display: none;
+    }
+
+    :global(html.menu-open) .menu-label-close {
+      display: inline;
+    }
+
+    .menu-icon {
+      display: grid;
+      gap: 6px;
+      width: 22px;
+    }
+
+    .menu-icon i {
+      display: block;
+      height: 1.5px;
+      background: currentColor;
+      transition: transform var(--dur-2) var(--ease-out);
+    }
+
+    :global(html.menu-open) .menu-icon i:first-child {
+      transform: translateY(3.75px) rotate(45deg);
+    }
+
+    :global(html.menu-open) .menu-icon i:last-child {
+      transform: translateY(-3.75px) rotate(-45deg);
+    }
+
+    /* Without JS the menu simply stays visible below the bar. */
+    :global(html.js) .menu {
+      position: fixed;
+      inset: 72px 0 auto 0;
+      height: calc(100dvh - 72px);
+      flex-direction: column;
+      align-items: flex-start;
+      justify-content: flex-start;
+      gap: 0;
+      padding: 1.5rem var(--gutter) 3rem;
+      background: var(--ink);
+      visibility: hidden;
+      opacity: 0;
+      transition:
+        opacity var(--dur-2) var(--ease-out),
+        visibility 0s linear var(--dur-2);
+    }
+
+    :global(html.js.menu-open) .menu {
+      visibility: visible;
+      opacity: 1;
+      transition: opacity var(--dur-2) var(--ease-out);
+    }
+
+    :global(html.js) .menu li {
+      width: 100%;
+      border-bottom: 1px solid var(--line);
+      transform: translateY(12px);
+      opacity: 0;
+      transition:
+        transform var(--dur-3) var(--ease-out),
+        opacity var(--dur-3) var(--ease-out);
+      transition-delay: calc(var(--i) * 60ms);
+    }
+
+    :global(html.js.menu-open) .menu li {
+      transform: none;
+      opacity: 1;
+    }
+
+    :global(html.js) .menu a {
+      font-family: var(--font-display);
+      font-size: 2rem;
+      font-weight: 400;
+      letter-spacing: -0.01em;
+      text-transform: none;
+      min-height: 72px;
+      color: var(--bone);
+    }
+
+    :global(html.js) .menu a::after {
+      display: none;
+    }
+
+    :global(html.js) .lang {
+      border-left: 0;
+      padding: 1.5rem 0 0;
+      border-bottom: 0;
+    }
+
+    :global(html.js) .lang a {
+      font-family: var(--font-text);
+      font-size: 0.9rem;
+      letter-spacing: 0.18em;
+      min-height: 48px;
+    }
+
+    :global(html:not(.js)) .bar {
+      flex-wrap: wrap;
+    }
+
+    :global(html:not(.js)) .menu {
+      flex-wrap: wrap;
+    }
+  }
+</style>

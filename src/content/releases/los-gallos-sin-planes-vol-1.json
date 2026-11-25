@@ -1,0 +1,63 @@
+{
+  "title": "Los Gallos Sin Planes, Vol. 1",
+  "type": "album",
+  "releaseDate": "2026-10-26",
+  "status": "published",
+  "approved": true,
+  "featured": true,
+  "language": "es",
+  "artwork": "los-gallos-sin-planes-vol-1.jpg",
+  "description": {
+    "en": "Eight songs for and about Los Gallos Sin Planes, the gaming crew at the heart of the Corral. Absurd subjects, produced as if they mattered — because they do.",
+    "es": "Ocho canciones para y sobre Los Gallos Sin Planes, el grupo gamer en el corazón del Corral. Temas absurdos, producidos como si importaran — porque importan."
+  },
+  "editorialStatus": "draft",
+  "tracklist": [
+    {
+      "title": "Los Tilteados",
+      "duration": "4:42"
+    },
+    {
+      "title": "No Peel, No Deal",
+      "duration": "4:42"
+    },
+    {
+      "title": "El Roba Kill",
+      "duration": "4:53"
+    },
+    {
+      "title": "Querido Mid",
+      "duration": "4:32"
+    },
+    {
+      "title": "El Juicio del Jungla",
+      "duration": "3:52"
+    },
+    {
+      "title": "Sabado de Cenizas",
+      "duration": "5:17"
+    },
+    {
+      "title": "Armandito",
+      "duration": "4:49"
+    },
+    {
+      "title": "Brillamos Como Diamantes",
+      "duration": "5:14"
+    }
+  ],
+  "copyright": "℗ © 2026 Corral Music Universe",
+  "links": {
+    "spotify": {
+      "url": "https://open.spotify.com/album/0XQrxomVJ3S70TJozLNdMq",
+      "verified": true,
+      "verifiedOn": "2026-11-25"
+    },
+    "appleMusic": {
+      "url": "https://music.apple.com/us/album/los-gallos-sin-planes-vol-1/6827154900",
+      "verified": true,
+      "verifiedOn": "2026-11-25"
+    }
+  },
+  "spotifyEmbedId": "0XQrxomVJ3S70TJozLNdMq"
+}

@@ -1,0 +1,43 @@
+{
+  "$comment": "Artist-level platform links. Only entries with verified=true are rendered. Never add a URL that was not supplied by the owner and checked.",
+  "platforms": [
+    {
+      "id": "spotify",
+      "label": "Spotify",
+      "url": "https://open.spotify.com/artist/7gQ7JH1XJBLfnXuQfnd1nO",
+      "verified": true,
+      "verifiedOn": "2026-11-25",
+      "note": "Owner-supplied. Resolves to the Corral Music Universe artist page."
+    },
+    {
+      "id": "appleMusic",
+      "label": "Apple Music",
+      "url": "https://music.apple.com/us/artist/corral-music-universe/6826026346",
+      "verified": true,
+      "verifiedOn": "2026-11-25",
+      "note": "Owner-supplied. Resolves to the artist page (US storefront)."
+    },
+    {
+      "id": "youtube",
+      "label": "YouTube",
+      "url": "https://www.youtube.com/channel/UCbNmSk7aejqIyMV7zmHJCgw",
+      "verified": true,
+      "verifiedOn": "2026-11-25",
+      "note": "Owner-supplied. Resolves to the auto-generated “Corral Music Universe - Topic” channel."
+    },
+    {
+      "id": "youtubeMusic",
+      "label": "YouTube Music",
+      "url": null,
+      "verified": false,
+      "note": "Not supplied. Do not invent."
+    },
+    {
+      "id": "instagram",
+      "label": "Instagram",
+      "url": "https://www.instagram.com/corralmusicuniverse/",
+      "verified": false,
+      "note": "Not yet confirmed; hidden until verified."
+    }
+  ]
+}

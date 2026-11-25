@@ -1,0 +1,29 @@
+{
+  "title": "Flaca de Ojos Marrones",
+  "type": "single",
+  "releaseDate": "2026-10-26",
+  "status": "published",
+  "approved": true,
+  "language": "es",
+  "artwork": "flaca-de-ojos-marrones.jpg",
+  "tracklist": [
+    {
+      "title": "Flaca de Ojos Marrones",
+      "duration": "4:25"
+    }
+  ],
+  "copyright": "℗ © 2026 Corral Music Universe",
+  "links": {
+    "spotify": {
+      "url": "https://open.spotify.com/album/0hFQZri5JdMQ30hleWhdxL",
+      "verified": true,
+      "verifiedOn": "2026-11-25"
+    },
+    "appleMusic": {
+      "url": "https://music.apple.com/us/album/flaca-de-ojos-marrones-single/6827091032",
+      "verified": true,
+      "verifiedOn": "2026-11-25"
+    }
+  },
+  "spotifyEmbedId": "0hFQZri5JdMQ30hleWhdxL"
+}

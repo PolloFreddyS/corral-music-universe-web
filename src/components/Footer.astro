@@ -1,0 +1,126 @@
+---
+import { ui, type Locale } from '~/i18n/ui';
+import { pagePath } from '~/lib/paths';
+import { verifiedPlatforms } from '~/lib/platforms';
+import site from '~/data/site-config.json';
+import brand from '~/data/brand.json';
+
+interface Props {
+  locale: Locale;
+}
+const { locale } = Astro.props;
+const t = ui[locale];
+const year = new Date().getUTCFullYear();
+const years = year > site.foundedYear ? `${site.foundedYear}–${year}` : String(year);
+---
+
+<footer class="site-footer">
+  <div class="wrap">
+    <p class="tagline" lang="es">{brand.tagline.es}</p>
+    <div class="grid">
+      <div>
+        <p class="name">{site.artistName}</p>
+        <p class="sub">{t['footer.tagline']}</p>
+      </div>
+      <nav aria-label={t['footer.navHeading']}>
+        <p class="meta">{t['footer.navHeading']}</p>
+        <ul>
+          <li><a href={pagePath(locale, 'music')}>{t['nav.music']}</a></li>
+          <li><a href={pagePath(locale, 'about')}>{t['nav.about']}</a></li>
+          <li><a href={pagePath(locale, 'book')}>{t['nav.book']}</a></li>
+          <li><a href={pagePath(locale, 'links')}>{t['nav.links']}</a></li>
+        </ul>
+      </nav>
+      <div>
+        <p class="meta">{t['footer.listenHeading']}</p>
+        <ul>
+          {
+            verifiedPlatforms.map((p) => (
+              <li>
+                <a href={p.url} target="_blank" rel="noopener noreferrer">
+                  {p.label}
+                  <span class="visually-hidden"> {t['links.newTab']}</span>
+                </a>
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+    <hr class="rule" />
+    <p class="legal">
+      © {years} {site.copyrightHolder}. {t['footer.rights']}
+    </p>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    border-top: 1px solid var(--line);
+    padding-block: clamp(3.5rem, 6vw, 6rem) 2rem;
+    background: linear-gradient(to bottom, var(--ink), #070708);
+  }
+
+  .tagline {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-weight: 300;
+    font-size: var(--step-3);
+    line-height: 1.1;
+    max-width: 20ch;
+    margin-bottom: clamp(2.5rem, 5vw, 4.5rem);
+    color: var(--bone);
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: 2rem;
+    padding-bottom: 2.5rem;
+  }
+
+  .name {
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    margin: 0 0 0.25rem;
+  }
+
+  .sub {
+    color: var(--bone-dim);
+    font-size: var(--step--1);
+  }
+
+  ul {
+    list-style: none;
+    margin: 0.75rem 0 0;
+    padding: 0;
+  }
+
+  li a {
+    display: inline-flex;
+    min-height: 40px;
+    align-items: center;
+    text-decoration: none;
+    color: var(--bone-dim);
+  }
+
+  li a:hover {
+    color: var(--bone);
+  }
+
+  .legal {
+    margin: 1.5rem 0 0;
+    font-size: var(--step--1);
+    color: var(--bone-dim);
+  }
+
+  @media (max-width: 720px) {
+    .grid {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .grid > :first-child {
+      grid-column: 1 / -1;
+    }
+  }
+</style>

@@ -1,0 +1,151 @@
+---
+/**
+ * Release artwork. Uses the owner-supplied file from src/assets/releases/ when
+ * the release names one; otherwise renders a clearly labelled DEVELOPMENT
+ * placeholder (typographic, never imitating real cover art).
+ */
+import { Image } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import { ui, type Locale } from '~/i18n/ui';
+
+interface Props {
+  title: string;
+  id: string;
+  file?: string | undefined;
+  locale: Locale;
+  sizes: string;
+  widths?: number[];
+  eager?: boolean;
+}
+
+const { title, id, file, locale, sizes, widths = [320, 480, 640], eager = false } =
+  Astro.props;
+const t = ui[locale];
+
+const files = import.meta.glob<{ default: ImageMetadata }>('/src/assets/releases/*.{jpg,jpeg,png,webp,avif}');
+const key = file ? `/src/assets/releases/${file}` : undefined;
+const loader = key ? files[key] : undefined;
+if (file && !loader) throw new Error(`Artwork "${file}" for release "${id}" not found in src/assets/releases/`);
+const img = loader ? (await loader()).default : undefined;
+
+// Deterministic, restrained tone per release for placeholders only.
+let h = 0;
+for (const c of id) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+const tone = h % 5;
+---
+
+<figure class="art">
+  {
+    img ? (
+      <Image
+        src={img}
+        alt={`${t['art.coverOf']} ${title}`}
+        widths={widths}
+        sizes={sizes}
+        loading={eager ? 'eager' : 'lazy'}
+        fetchpriority={eager ? 'high' : 'auto'}
+        decoding="async"
+      />
+    ) : (
+      <div class="placeholder" data-tone={tone} role="img" aria-label={`${title} — ${t['art.pending']}`}>
+        <span class="ph-title" aria-hidden="true">
+          {title}
+        </span>
+        <span class="ph-sig" aria-hidden="true">
+          Corral Music Universe
+        </span>
+        <span class="ph-label" aria-hidden="true">
+          {t['art.pending']}
+        </span>
+      </div>
+    )
+  }
+</figure>
+
+<style>
+  .art {
+    margin: 0;
+    position: relative;
+    aspect-ratio: 1;
+    overflow: hidden;
+    background: var(--ink-2);
+    box-shadow:
+      0 1px 0 rgb(255 255 255 / 0.04) inset,
+      0 30px 60px -30px rgb(0 0 0 / 0.8);
+  }
+
+  .art :global(img) {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .placeholder {
+    --tone: #2a1412;
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    padding: 9%;
+    background:
+      radial-gradient(120% 80% at 80% 0%, color-mix(in srgb, var(--tone) 60%, #3a3a40) 0%, transparent 60%),
+      linear-gradient(160deg, var(--tone), #08080a 75%);
+    container-type: inline-size;
+  }
+
+  .placeholder[data-tone='1'] {
+    --tone: #14161f;
+  }
+
+  .placeholder[data-tone='2'] {
+    --tone: #1d1a14;
+  }
+
+  .placeholder[data-tone='3'] {
+    --tone: #18131a;
+  }
+
+  .placeholder[data-tone='4'] {
+    --tone: #121a18;
+  }
+
+  .placeholder::after {
+    content: '';
+    position: absolute;
+    inset: 5%;
+    border: 1px solid rgb(236 230 218 / 0.12);
+    pointer-events: none;
+  }
+
+  .ph-title {
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(1rem, 11cqi, 3.6rem);
+    line-height: 1;
+    letter-spacing: -0.01em;
+    color: var(--bone);
+    text-wrap: balance;
+  }
+
+  .ph-sig {
+    margin-top: 0.8em;
+    font-size: clamp(0.5rem, 3cqi, 0.8rem);
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    color: var(--bone-dim);
+  }
+
+  .ph-label {
+    position: absolute;
+    top: 9%;
+    left: 9%;
+    padding: 0.35em 0.6em;
+    border: 1px dashed rgb(201 165 90 / 0.6);
+    color: var(--gold);
+    font-size: clamp(0.5rem, 2.8cqi, 0.72rem);
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+</style>

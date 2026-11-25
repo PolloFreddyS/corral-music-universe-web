@@ -1,0 +1,29 @@
+{
+  "title": "The Weight of Everything",
+  "type": "single",
+  "releaseDate": "2026-10-24",
+  "status": "published",
+  "approved": true,
+  "language": "en",
+  "artwork": "the-weight-of-everything.jpg",
+  "tracklist": [
+    {
+      "title": "The Weight of Everything",
+      "duration": "4:32"
+    }
+  ],
+  "copyright": "℗ © 2026 Corral Music Universe",
+  "links": {
+    "spotify": {
+      "url": "https://open.spotify.com/album/7rOGKwnaUubdCroJSh7HLp",
+      "verified": true,
+      "verifiedOn": "2026-11-25"
+    },
+    "appleMusic": {
+      "url": "https://music.apple.com/us/album/the-weight-of-everything-single/6826545788",
+      "verified": true,
+      "verifiedOn": "2026-11-25"
+    }
+  },
+  "spotifyEmbedId": "7rOGKwnaUubdCroJSh7HLp"
+}

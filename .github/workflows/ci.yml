@@ -1,0 +1,45 @@
+name: CI
+
+# Build verification only. This workflow NEVER deploys.
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Lint
+        run: npm run lint
+      - name: Type check (astro check)
+        run: npm run check
+      - name: Unit tests (visibility, language choice, data rules)
+        run: npm test
+      - name: Build at the GitHub Pages sub-path
+        env:
+          SITE_URL: https://${{ github.repository_owner }}.github.io
+          BASE_PATH: /${{ github.event.repository.name }}
+        run: npm run build
+      - name: Internal links, hreflang, privacy scan, EN/ES parity
+        env:
+          BASE_PATH: /${{ github.event.repository.name }}
+        run: npm run check:links
+      - name: Launch readiness report (informational)
+        run: npm run check:launch || echo "::notice::Launch blockers remain — see log. This does not fail CI."

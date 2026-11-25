@@ -1,0 +1,65 @@
+---
+/**
+ * Language gateway at "/". Static: the visitor's browser picks /en/ or /es/.
+ * Order: saved manual choice → browser languages → English.
+ * Without JavaScript the page offers both links and falls back to /en/.
+ */
+import '~/styles/global.css';
+import { chooseLocale, STORAGE_KEY } from '~/lib/lang-storage';
+import { withBase } from '~/lib/paths';
+import site from '~/data/site-config.json';
+
+const en = withBase('/en/');
+const es = withBase('/es/');
+const siteUrl = Astro.site ?? new URL('https://example.invalid');
+const abs = (p: string) => new URL(withBase(p), siteUrl).href;
+const script = `(function(){var choose=${chooseLocale.toString()};var s=null;try{s=localStorage.getItem(${JSON.stringify(
+  STORAGE_KEY,
+)})}catch(e){}var l=choose(s,navigator.languages||[navigator.language||'']);location.replace(l==='es'?${JSON.stringify(
+  es,
+)}:${JSON.stringify(en)});})();`;
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{site.artistName}</title>
+    <meta name="robots" content="noindex, follow" />
+    <link rel="alternate" hreflang="en" href={abs('/en/')} />
+    <link rel="alternate" hreflang="es" href={abs('/es/')} />
+    <link rel="alternate" hreflang="x-default" href={abs('/')} />
+    <link rel="icon" href={withBase('/favicon.ico')} sizes="any" />
+    <script is:inline set:html={script} />
+    <noscript><meta http-equiv="refresh" content={`3; url=${en}`} /></noscript>
+    <style>
+      .gate {
+        min-height: 100dvh;
+        display: grid;
+        place-content: center;
+        gap: 1.5rem;
+        text-align: center;
+      }
+      .gate p {
+        font-family: var(--font-display);
+        font-size: 1.5rem;
+        margin: 0;
+      }
+      .gate nav {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+      }
+    </style>
+  </head>
+  <body>
+    <main class="gate">
+      <p>{site.artistName}</p>
+      <nav aria-label="Language / Idioma">
+        <a class="btn" href={en} hreflang="en" lang="en">English</a>
+        <a class="btn" href={es} hreflang="es" lang="es">Español</a>
+      </nav>
+    </main>
+  </body>
+</html>

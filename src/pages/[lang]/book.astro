@@ -1,0 +1,353 @@
+---
+import { Image } from 'astro:assets';
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import { ui, locales, type Locale } from '~/i18n/ui';
+import { getPublicReleases } from '~/lib/releases';
+import { releasePath } from '~/lib/paths';
+import book from '~/data/book.json';
+import { getBookCover } from '~/lib/book';
+
+export function getStaticPaths() {
+  return locales.map((lang) => ({ params: { lang } }));
+}
+
+const locale = Astro.params.lang as Locale;
+const t = ui[locale];
+
+// Poem → song connections come only from public releases that cite the book.
+const releases = await getPublicReleases();
+const connections = releases
+  .filter((r) => r.data.literarySourceBook === book.id)
+  .flatMap((r) =>
+    r.data.tracklist
+      .filter((tr) => tr.literarySource)
+      .map((tr) => ({ poem: tr.literarySource as string, song: tr.title, release: r })),
+  );
+const sourceAlbums = [...new Set(connections.map((c) => c.release.data.title))];
+
+const cover = await getBookCover();
+
+interface Excerpt {
+  poem: string;
+  lines: string[];
+}
+const excerpts = book.excerpts as Excerpt[];
+interface Purchase {
+  label: string;
+  url: string;
+}
+const purchases = book.purchaseLinks as Purchase[];
+---
+
+<BaseLayout locale={locale} title={book.title} description={book.description[locale]} path="book/" ogType="book">
+  <section class="section book-hero">
+    <div class="wrap grid">
+      <div class="cover-col">
+        {
+          cover ? (
+            <Image src={cover} alt={book.coverAlt[locale]} widths={[300, 480, 720]} sizes="(max-width: 860px) 70vw, 420px" loading="eager" class="cover" />
+          ) : (
+            <div class="cover placeholder" role="img" aria-label={`${book.coverAlt[locale]} — ${t['book.coverPending']}`}>
+              <span class="ph-label" aria-hidden="true">{t['book.coverPending']}</span>
+              <span class="ph-title" aria-hidden="true" lang="es">
+                La
+                <br />
+                Fórmula
+                <br />
+                del Verso
+              </span>
+              <span class="ph-author" aria-hidden="true">{book.author}</span>
+            </div>
+          )
+        }
+      </div>
+      <div>
+        <p class="kicker">{t['book.kicker']}</p>
+        <h1 class="title" lang="es"><cite>{book.title}</cite></h1>
+        <p class="meta">{t['book.by']} {book.author}</p>
+        <p class="lede desc">{book.description[locale]}</p>
+        <p class="note">{t['book.originalLanguage']}</p>
+      </div>
+    </div>
+  </section>
+
+  {
+    connections.length > 0 && (
+      <section class="section connections" aria-labelledby="connections">
+        <div class="wrap">
+          <h2 id="connections" class="h2" data-reveal>
+            {t['book.connectionsHeading']}
+          </h2>
+          <p class="prose intro" data-reveal>
+            {t['book.connectionsIntro']}
+          </p>
+          <table class="map">
+            <caption class="visually-hidden">
+              {t['book.connectionsHeading']} — {sourceAlbums.join(', ')}
+            </caption>
+            <thead>
+              <tr>
+                <th scope="col">{t['book.poem']}</th>
+                <th scope="col" aria-hidden="true" />
+                <th scope="col">{t['book.song']}</th>
+              </tr>
+            </thead>
+            <tbody>
+              {connections.map((c, i) => (
+                <tr data-reveal data-ri={i % 4}>
+                  <td class="poem" lang="es">
+                    <cite>{c.poem}</cite>
+                  </td>
+                  <td class="arrow" aria-hidden="true">
+                    →
+                  </td>
+                  <td class="song">
+                    <a href={releasePath(locale, c.release.id)}>{c.song}</a>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </section>
+    )
+  }
+
+  {
+    excerpts.length > 0 && (
+      <section class="section excerpts" aria-labelledby="excerpts">
+        <div class="wrap">
+          <h2 id="excerpts" class="h2">
+            {t['book.excerptsHeading']}
+          </h2>
+          {excerpts.map((e) => (
+            <figure class="excerpt" lang="es">
+              <blockquote>
+                {e.lines.map((l) => (
+                  <p>{l}</p>
+                ))}
+              </blockquote>
+              <figcaption>
+                <cite>{e.poem}</cite>
+              </figcaption>
+            </figure>
+          ))}
+        </div>
+      </section>
+    )
+  }
+
+  <section class="section read" aria-labelledby="read">
+    <div class="wrap">
+      <h2 id="read" class="h2">{t['book.readHeading']}</h2>
+      {
+        purchases.length > 0 ? (
+          <ul class="buy" role="list">
+            {purchases.map((p) => (
+              <li>
+                <a class="btn" href={p.url} target="_blank" rel="noopener noreferrer">
+                  {p.label} <span class="arrow" aria-hidden="true">↗</span>
+                  <span class="visually-hidden"> {t['links.newTab']}</span>
+                </a>
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p class="muted">{t['book.readPending']}</p>
+        )
+      }
+    </div>
+  </section>
+</BaseLayout>
+
+<style>
+  .grid {
+    display: grid;
+    grid-template-columns: minmax(0, 0.75fr) minmax(0, 1.25fr);
+    gap: clamp(2rem, 6vw, 6rem);
+    align-items: center;
+  }
+
+  .cover-col {
+    max-width: 420px;
+    width: 100%;
+    margin-inline: auto;
+  }
+
+  .cover {
+    width: 100%;
+    box-shadow: 0 50px 90px -40px rgb(0 0 0 / 0.95);
+  }
+
+  .placeholder {
+    position: relative;
+    aspect-ratio: 2 / 3;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 2rem;
+    padding: 14%;
+    background: linear-gradient(160deg, #1a2a55, #0d1631);
+    color: #e0c48a;
+  }
+
+  .ph-label {
+    position: absolute;
+    top: 6%;
+    left: 8%;
+    padding: 0.35em 0.6em;
+    border: 1px dashed rgb(224 196 138 / 0.6);
+    font-size: 0.68rem;
+    font-weight: 600;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+  }
+
+  .ph-title {
+    font-family: var(--font-display);
+    font-size: clamp(1.8rem, 4vw, 2.8rem);
+    line-height: 1.05;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+
+  .ph-author {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: 1.2rem;
+  }
+
+  .title {
+    font-size: var(--step-4);
+    font-weight: 350;
+    letter-spacing: -0.03em;
+    line-height: 0.98;
+    margin-bottom: 1rem;
+  }
+
+  .title cite {
+    font-style: italic;
+  }
+
+  .desc {
+    margin: 2rem 0 1.5rem;
+    max-width: 36ch;
+  }
+
+  .note,
+  .muted {
+    color: var(--bone-dim);
+    font-size: var(--step--1);
+  }
+
+  .h2 {
+    font-size: var(--step-3);
+    font-weight: 400;
+    margin-bottom: 1rem;
+  }
+
+  .connections {
+    border-top: 1px solid var(--line);
+    background: var(--ink-2);
+  }
+
+  .intro {
+    color: var(--bone-dim);
+    margin-bottom: 2.5rem;
+  }
+
+  .map {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .map th {
+    text-align: left;
+    font-size: var(--step--1);
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-weight: 600;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .map td {
+    padding: 1.1rem 0;
+    border-bottom: 1px solid var(--line);
+    vertical-align: baseline;
+  }
+
+  .poem cite {
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: var(--step-1);
+  }
+
+  .arrow {
+    color: var(--oxblood-hover);
+    width: 3rem;
+    text-align: center;
+  }
+
+  .song a {
+    font-family: var(--font-display);
+    font-size: var(--step-1);
+    text-decoration: none;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .song a:hover {
+    border-color: var(--bone);
+  }
+
+  .excerpt {
+    margin: 0 0 3rem;
+    max-width: 40ch;
+  }
+
+  .excerpt blockquote {
+    margin: 0;
+    font-family: var(--font-display);
+    font-style: italic;
+    font-size: var(--step-2);
+    line-height: 1.35;
+  }
+
+  .excerpt blockquote p {
+    margin: 0;
+  }
+
+  .excerpt figcaption {
+    margin-top: 1rem;
+    color: var(--gold);
+  }
+
+  .read {
+    border-top: 1px solid var(--line);
+  }
+
+  .buy {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  @media (max-width: 860px) {
+    .grid {
+      grid-template-columns: minmax(0, 1fr);
+    }
+
+    .cover-col {
+      max-width: 260px;
+    }
+
+    .map thead th:nth-child(2),
+    .arrow {
+      width: 2rem;
+    }
+  }
+</style>

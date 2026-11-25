@@ -1,0 +1,24 @@
+{
+  "$comment": "La Fórmula del Verso. Only owner-approved material is published. Book files are never stored in this repository.",
+  "id": "la-formula-del-verso",
+  "title": "La Fórmula del Verso",
+  "author": "Freddy Santana",
+  "language": "es",
+  "editorialStatus": "draft",
+  "description": {
+    "en": "A collection of original Spanish-language poems by Freddy Santana: an attempt to understand love, the soul and the passing of time, written between the numbers of the day and the words of the night. It is where Corral Music Universe begins.",
+    "es": "Una colección de poemas originales en español de Freddy Santana: un intento de comprender el amor, el alma y el paso del tiempo, escrito entre los números del día y las palabras de la noche. Es donde empieza Corral Music Universe."
+  },
+  "cover": "la-formula-del-verso-cover.webp",
+  "coverAlt": {
+    "en": "Cover of La Fórmula del Verso by Freddy Santana",
+    "es": "Portada de La Fórmula del Verso de Freddy Santana"
+  },
+  "excerpts": [],
+  "purchaseLinks": [],
+  "pdf": {
+    "public": false,
+    "file": null,
+    "note": "Not offered."
+  }
+}

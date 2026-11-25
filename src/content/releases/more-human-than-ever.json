@@ -1,0 +1,72 @@
+{
+  "title": "More Human Than Ever",
+  "type": "album",
+  "releaseDate": "2026-11-17",
+  "status": "published",
+  "approved": true,
+  "featured": true,
+  "language": "en",
+  "artwork": "more-human-than-ever.jpg",
+  "description": {
+    "en": "Eight English-language songs, each one grown from a poem Freddy Santana wrote first. Alternative rock with the lights low.",
+    "es": "Ocho canciones en inglés, cada una nacida de un poema que Freddy Santana escribió primero. Rock alternativo con las luces bajas."
+  },
+  "story": {
+    "en": "Before these were songs, they were poems in La Fórmula del Verso. “Going Under” started as “Abismo Interior”. “Where My Words Come From” started as “La Fuente de Mis Versos”. The album keeps each poem’s emotional spine and gives it amplifiers, drums and a voice.",
+    "es": "Antes de ser canciones, fueron poemas de La Fórmula del Verso. «Going Under» empezó como «Abismo Interior». «Where My Words Come From» empezó como «La Fuente de Mis Versos». El álbum conserva la columna emocional de cada poema y le da amplificadores, batería y voz."
+  },
+  "editorialStatus": "draft",
+  "literarySourceBook": "la-formula-del-verso",
+  "tracklist": [
+    {
+      "title": "Going Under",
+      "duration": "4:57",
+      "literarySource": "Abismo Interior"
+    },
+    {
+      "title": "The House Always Wins",
+      "duration": "3:49",
+      "literarySource": "El Juego del Destino"
+    },
+    {
+      "title": "Little Boy in the Rain",
+      "duration": "4:01",
+      "literarySource": "Entre Lluvias y Esperanza"
+    },
+    {
+      "title": "Let The Fear Come",
+      "duration": "3:30",
+      "literarySource": "El Miedo que Nos Forja"
+    },
+    {
+      "title": "I Want Your Saturday Morning",
+      "duration": "4:09",
+      "literarySource": "El Amanecer de Nuestro Amor"
+    },
+    {
+      "title": "A Glimpse of Tomorrow",
+      "duration": "4:13",
+      "literarySource": "Saltos en el Tiempo"
+    },
+    {
+      "title": "Splinters in My Heart",
+      "duration": "4:58",
+      "literarySource": "El Recuerdo del Corazón"
+    },
+    {
+      "title": "Where My Words Come From",
+      "duration": "4:38",
+      "literarySource": "La Fuente de Mis Versos"
+    }
+  ],
+  "credits": [],
+  "copyright": "℗ © 2026 Corral Music Universe",
+  "links": {
+    "spotify": {
+      "url": "https://open.spotify.com/album/5XlFmJqc1uV3qWXqHuABId",
+      "verified": true,
+      "verifiedOn": "2026-11-25"
+    }
+  },
+  "spotifyEmbedId": "5XlFmJqc1uV3qWXqHuABId"
+}

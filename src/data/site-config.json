@@ -1,0 +1,12 @@
+{
+  "artistName": "Corral Music Universe",
+  "shortName": "CMU",
+  "defaultLocale": "en",
+  "locales": ["en", "es"],
+  "languageStorageKey": "cmu-lang",
+  "contactEmail": null,
+  "customDomain": null,
+  "analytics": null,
+  "copyrightHolder": "Corral Music Universe",
+  "foundedYear": 2026
+}

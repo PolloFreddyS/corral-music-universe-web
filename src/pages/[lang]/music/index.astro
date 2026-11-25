@@ -1,0 +1,161 @@
+---
+import BaseLayout from '~/layouts/BaseLayout.astro';
+import ReleaseCard from '~/components/ReleaseCard.astro';
+import { ui, locales, type Locale, type UIKey } from '~/i18n/ui';
+import { getPublicReleases } from '~/lib/releases';
+
+export function getStaticPaths() {
+  return locales.map((lang) => ({ params: { lang } }));
+}
+
+const locale = Astro.params.lang as Locale;
+const t = ui[locale];
+const releases = await getPublicReleases();
+
+const filters: { value: string; key: UIKey }[] = [
+  { value: 'all', key: 'music.all' },
+  { value: 'album', key: 'music.albums' },
+  { value: 'ep', key: 'music.eps' },
+  { value: 'single', key: 'music.singles' },
+];
+// Only offer filters that actually have releases behind them.
+const available = filters.filter((f) => f.value === 'all' || releases.some((r) => r.data.type === f.value));
+---
+
+<BaseLayout locale={locale} title={t['music.title']} description={t['music.intro']} path="music/">
+  <section class="section page-head">
+    <div class="wrap">
+      <p class="kicker">Corral Music Universe</p>
+      <h1 class="page-title">{t['music.title']}</h1>
+      <p class="lede intro">{t['music.intro']}</p>
+
+      {
+        available.length > 2 && (
+          <div class="filters" role="group" aria-label={t['music.filterLabel']} data-filters hidden>
+            {available.map((f, i) => (
+              <button type="button" class="chip" data-filter={f.value} aria-pressed={i === 0 ? 'true' : 'false'}>
+                {t[f.key]}
+              </button>
+            ))}
+          </div>
+        )
+      }
+    </div>
+  </section>
+
+  <section class="catalog" aria-label={t['music.title']}>
+    <div class="wrap">
+      {
+        releases.length === 0 ? (
+          <p>{t['music.empty']}</p>
+        ) : (
+          <div class="grid" data-grid>
+            {releases.map((r, i) => (
+              <ReleaseCard release={r} locale={locale} index={i} headingLevel="h2" />
+            ))}
+          </div>
+        )
+      }
+      <p class="visually-hidden" aria-live="polite" data-live></p>
+    </div>
+  </section>
+</BaseLayout>
+
+<script>
+  function initFilters() {
+    const group = document.querySelector<HTMLElement>('[data-filters]');
+    const grid = document.querySelector<HTMLElement>('[data-grid]');
+    const live = document.querySelector<HTMLElement>('[data-live]');
+    if (!group || !grid || group.dataset['bound']) return;
+    group.dataset['bound'] = '1';
+    group.hidden = false;
+    const buttons = [...group.querySelectorAll<HTMLButtonElement>('[data-filter]')];
+    buttons.forEach((btn) =>
+      btn.addEventListener('click', () => {
+        const value = btn.dataset['filter'];
+        buttons.forEach((b) => b.setAttribute('aria-pressed', String(b === btn)));
+        let shown = 0;
+        grid.querySelectorAll<HTMLElement>('[data-type]').forEach((card) => {
+          const show = value === 'all' || card.dataset['type'] === value;
+          card.hidden = !show;
+          if (show) {
+            shown++;
+            card.classList.add('is-in');
+          }
+        });
+        if (live) live.textContent = `${btn.textContent?.trim()}: ${shown}`;
+      }),
+    );
+  }
+  document.addEventListener('astro:page-load', initFilters);
+</script>
+
+<style>
+  .page-head {
+    padding-bottom: clamp(2rem, 4vw, 3.5rem);
+  }
+
+  .page-title {
+    font-size: var(--step-5);
+    font-weight: 400;
+    letter-spacing: -0.035em;
+    line-height: 0.9;
+  }
+
+  .intro {
+    margin: 1.5rem 0 0;
+    color: var(--bone-dim);
+  }
+
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 2.5rem;
+  }
+
+  .chip {
+    min-height: 44px;
+    padding: 0.55rem 1.1rem;
+    border: 1px solid var(--line);
+    border-radius: 999px;
+    background: transparent;
+    color: var(--bone-dim);
+    font: 600 0.75rem/1 var(--font-text);
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition:
+      background-color var(--dur-1) ease,
+      color var(--dur-1) ease,
+      border-color var(--dur-1) ease;
+  }
+
+  .chip:hover {
+    border-color: var(--bone-dim);
+    color: var(--bone);
+  }
+
+  .chip[aria-pressed='true'] {
+    background: var(--bone);
+    border-color: var(--bone);
+    color: var(--ink);
+  }
+
+  .catalog {
+    padding-bottom: var(--section);
+  }
+
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, 250px), 1fr));
+    gap: clamp(2rem, 3vw, 3rem) clamp(1.25rem, 2.5vw, 2.25rem);
+  }
+
+  @media (max-width: 520px) {
+    .grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 2rem 1rem;
+    }
+  }
+</style>

@@ -1,0 +1,20 @@
+node_modules/
+dist/
+.astro/
+.env
+.env.*
+!.env.example
+*.log
+.DS_Store
+Thumbs.db
+# Never commit book files, audio or other private material
+private/
+.private/
+*.pdf
+*.docx
+*.wav
+*.mp3
+
+# Private local blocklist
+scripts/blocklist.local.txt
+.sync-report.md

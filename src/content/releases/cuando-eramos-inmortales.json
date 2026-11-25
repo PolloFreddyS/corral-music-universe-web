@@ -1,0 +1,29 @@
+{
+  "title": "Cuando Éramos Inmortales",
+  "type": "single",
+  "releaseDate": "2026-10-26",
+  "status": "published",
+  "approved": true,
+  "language": "es",
+  "artwork": "cuando-eramos-inmortales.jpg",
+  "tracklist": [
+    {
+      "title": "Cuando Éramos Inmortales",
+      "duration": "4:18"
+    }
+  ],
+  "copyright": "℗ © 2026 Corral Music Universe",
+  "links": {
+    "spotify": {
+      "url": "https://open.spotify.com/album/4B6io2Ju11fxZXKfVwRXQz",
+      "verified": true,
+      "verifiedOn": "2026-11-25"
+    },
+    "appleMusic": {
+      "url": "https://music.apple.com/us/album/cuando-%C3%A9ramos-inmortales-single/6827090833",
+      "verified": true,
+      "verifiedOn": "2026-11-25"
+    }
+  },
+  "spotifyEmbedId": "4B6io2Ju11fxZXKfVwRXQz"
+}

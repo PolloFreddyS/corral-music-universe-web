@@ -1,0 +1,29 @@
+{
+  "$comment": "Design tokens mirror src/styles/tokens.css. The logo is the owner-supplied official mark and must not be redrawn.",
+  "logo": {
+    "file": "src/assets/brand/cmu-logo-official.png",
+    "source": "Owner-supplied official logo, received 2026-11-25",
+    "derivatives": ["public/favicon.ico", "public/favicon-32.png", "public/apple-touch-icon.png", "public/icon-192.png", "public/icon-512.png", "public/og-default.jpg"],
+    "derivativeRule": "Scaled copies only (circular crop outside the gold ring for icons). No recolouring, redrawing or added marks."
+  },
+  "tagline": {
+    "es": "Primero fueron versos. Después encontraron su voz.",
+    "en": "First they were verses. Then they found their voice."
+  },
+  "colors": {
+    "ink": "#0B0B0C",
+    "ink2": "#141416",
+    "ink3": "#1D1D21",
+    "line": "#2B2B30",
+    "bone": "#ECE6DA",
+    "boneDim": "#A9A296",
+    "oxblood": "#B3261E",
+    "oxbloodHover": "#CC3227",
+    "gold": "#C9A55A",
+    "volt": "#4C86FF"
+  },
+  "fonts": {
+    "display": "Fraunces Variable (self-hosted, SIL OFL 1.1)",
+    "text": "Archivo Variable (self-hosted, SIL OFL 1.1)"
+  }
+}

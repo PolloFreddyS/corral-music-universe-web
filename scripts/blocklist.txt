@@ -1,0 +1,5 @@
+# Terms that must never appear in the built public site (generic only).
+# This file is public: do NOT write private names, file names or unreleased titles here.
+# Put those in scripts/blocklist.local.txt (git-ignored).
+BEGIN PRIVATE KEY
+SPOTIFY_CLIENT_SECRET

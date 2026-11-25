@@ -1,0 +1,78 @@
+name: Sync new releases
+
+# Every day, look for new Corral Music Universe releases on Spotify and for new
+# Apple Music links. If anything changed, open (or update) ONE pull request.
+# Nothing is published until the owner approves and merges that PR.
+on:
+  schedule:
+    - cron: '0 */6 * * *' # every 6 hours (UTC)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: sync-releases
+  cancel-in-progress: false
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+
+      - name: Look for new releases
+        id: sync
+        env:
+          SPOTIFY_CLIENT_ID: ${{ secrets.SPOTIFY_CLIENT_ID }}
+          SPOTIFY_CLIENT_SECRET: ${{ secrets.SPOTIFY_CLIENT_SECRET }}
+        run: node scripts/sync/sync-releases.mjs
+
+      # PRs opened with GITHUB_TOKEN don't trigger other workflows, so verify here.
+      - name: Verify the updated site
+        if: steps.sync.outputs.changes != '0'
+        env:
+          SITE_URL: https://${{ github.repository_owner }}.github.io
+          BASE_PATH: /${{ github.event.repository.name }}
+        run: |
+          npm run lint
+          npm run check
+          npm test
+          npm run build
+          npm run check:links
+
+      - name: Open or update the pull request
+        if: steps.sync.outputs.changes != '0'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          branch=sync/new-releases
+          git config user.name "cmu-release-bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git switch -C "$branch"
+          git add src/content/releases src/assets/releases
+          git commit -m "New releases from Spotify / Apple Music ($(date -u +%F))"
+          git push --force origin "$branch"
+          {
+            echo "Automatic catalog update. **Merging this PR publishes it** (once the site is live)."
+            echo
+            cat .sync-report.md
+            echo
+            echo "### Please check before merging"
+            echo "- [ ] Title, cover and date look right"
+            echo "- [ ] \`language\` guess is correct (en/es) in the JSON"
+            echo "- [ ] Optional: add a \`description\` (en + es) and \`story\`"
+            echo "- [ ] Set \`approved\` to \`false\` if this release should NOT appear on the site"
+          } > pr-body.md
+          if gh pr view "$branch" --json state -q .state 2>/dev/null | grep -q OPEN; then
+            gh pr edit "$branch" --body-file pr-body.md
+          else
+            gh pr create --head "$branch" --base main --title "New release(s) detected" --body-file pr-body.md
+          fi

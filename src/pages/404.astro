@@ -1,0 +1,67 @@
+---
+/* GitHub Pages serves this for any unknown path. Bilingual by design. */
+import '@fontsource-variable/fraunces/opsz.css';
+import '@fontsource-variable/archivo/index.css';
+import '~/styles/global.css';
+import { ui } from '~/i18n/ui';
+import { withBase } from '~/lib/paths';
+import site from '~/data/site-config.json';
+---
+
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>404 — {site.artistName}</title>
+    <meta name="robots" content="noindex" />
+    <link rel="icon" href={withBase('/favicon.ico')} sizes="any" />
+    <style>
+      .nf {
+        min-height: 100dvh;
+        display: grid;
+        align-content: center;
+        gap: 3rem;
+      }
+      .code {
+        font-family: var(--font-display);
+        font-size: var(--step-5);
+        color: var(--oxblood-hover);
+        line-height: 1;
+        margin: 0;
+      }
+      .cols {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 2rem;
+      }
+      h1,
+      .h1-like {
+        font-size: var(--step-2);
+        margin-bottom: 0.75rem;
+      }
+      @media (max-width: 640px) {
+        .cols {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="wrap nf">
+      <p class="code" aria-hidden="true">404</p>
+      <div class="cols">
+        <section lang="en">
+          <h1>{ui.en['notFound.title']}</h1>
+          <p>{ui.en['notFound.body']}</p>
+          <a class="btn" href={withBase('/en/')}>{ui.en['notFound.home']}</a>
+        </section>
+        <section lang="es">
+          <h2 class="h1-like">{ui.es['notFound.title']}</h2>
+          <p>{ui.es['notFound.body']}</p>
+          <a class="btn" href={withBase('/es/')}>{ui.es['notFound.home']}</a>
+        </section>
+      </div>
+    </main>
+  </body>
+</html>
