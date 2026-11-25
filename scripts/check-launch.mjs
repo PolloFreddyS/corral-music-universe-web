@@ -43,7 +43,7 @@ if (!site.contactEmail) notes.push('site-config.json: no public contact email (C
 const plats = read('src/data/platforms.json').platforms;
 for (const p of plats) if (!p.verified) notes.push(`platforms.json: ${p.label} not verified (hidden)`);
 
-const aboutDraft = true; // flip to false once the owner approves the About copy in src/i18n/ui.ts
+const aboutDraft = false; // owner approved the About copy on 2026-11-25
 if (aboutDraft) blockers.push('About page copy (src/i18n/ui.ts about.*) awaits owner approval');
 
 console.log('Launch readiness\n================');
