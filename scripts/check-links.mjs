@@ -8,7 +8,7 @@
  * Run after `astro build`. BASE_PATH must match the build.
  */
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
-import { join, relative } from 'node:path';
+import { join, relative, sep } from 'node:path';
 
 const dist = new URL('../dist/', import.meta.url).pathname.replace(/^\/([A-Za-z]:)/, '$1');
 const base = (process.env.BASE_PATH ?? '/').replace(/\/+$/, '');
@@ -85,7 +85,10 @@ for (const file of html) {
     if (src.toLowerCase().includes(term.toLowerCase())) errors.push(`${rel}: contains blocked term "${term}"`);
 }
 
+// The only PDF allowed is the book the owner authorised for free distribution.
+const allowedFiles = new Set(['book/la-formula-del-verso.pdf']);
 for (const f of files) {
+  if (allowedFiles.has(relative(dist, f).split(sep).join('/'))) continue;
   if (/\.(pdf|docx|wav|mp3|env)$/i.test(f)) errors.push(`dist contains a private-type file: ${relative(dist, f)}`);
 }
 

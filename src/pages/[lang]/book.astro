@@ -6,6 +6,7 @@ import { getPublicReleases } from '~/lib/releases';
 import { releasePath } from '~/lib/paths';
 import book from '~/data/book.json';
 import { getBookCover } from '~/lib/book';
+import { withBase } from '~/lib/paths';
 
 export function getStaticPaths() {
   return locales.map((lang) => ({ params: { lang } }));
@@ -37,6 +38,7 @@ interface Purchase {
   url: string;
 }
 const purchases = book.purchaseLinks as Purchase[];
+const pdf = book.pdf.public && book.pdf.file ? { href: withBase(`/${book.pdf.file}`), pages: book.pdf.pages } : null;
 ---
 
 <BaseLayout locale={locale} title={book.title} description={book.description[locale]} path="book/" ogType="book">
@@ -141,6 +143,16 @@ const purchases = book.purchaseLinks as Purchase[];
     <div class="wrap">
       <h2 id="read" class="h2">{t['book.readHeading']}</h2>
       {
+        pdf && (
+          <p class="download">
+            <a class="btn" href={pdf.href} type="application/pdf" hreflang="es">
+              {t['book.download']} <span class="arrow" aria-hidden="true">↓</span>
+            </a>
+            <span class="meta">{t['book.downloadMeta'].replace('{pages}', String(pdf.pages))}</span>
+          </p>
+        )
+      }
+      {
         purchases.length > 0 ? (
           <ul class="buy" role="list">
             {purchases.map((p) => (
@@ -153,7 +165,7 @@ const purchases = book.purchaseLinks as Purchase[];
             ))}
           </ul>
         ) : (
-          <p class="muted">{t['book.readPending']}</p>
+          !pdf && <p class="muted">{t['book.readPending']}</p>
         )
       }
     </div>
@@ -161,6 +173,13 @@ const purchases = book.purchaseLinks as Purchase[];
 </BaseLayout>
 
 <style>
+  .download {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 1rem 1.5rem;
+  }
+
   .grid {
     display: grid;
     grid-template-columns: minmax(0, 0.75fr) minmax(0, 1.25fr);

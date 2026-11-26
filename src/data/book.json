@@ -1,5 +1,5 @@
 {
-  "$comment": "La Fórmula del Verso. Only owner-approved material is published. Book files are never stored in this repository.",
+  "$comment": "La Fórmula del Verso. Only owner-approved material is published. The PDF in public/book/ is the single owner-authorised book file.",
   "id": "la-formula-del-verso",
   "title": "La Fórmula del Verso",
   "author": "Freddy Santana",
@@ -17,8 +17,9 @@
   "excerpts": [],
   "purchaseLinks": [],
   "pdf": {
-    "public": false,
-    "file": null,
-    "note": "Not offered."
+    "public": true,
+    "file": "book/la-formula-del-verso.pdf",
+    "pages": 111,
+    "note": "Owner authorised free public distribution on 2026-11-25. Metadata stripped; text identical to the owner's file."
   }
 }

@@ -11,6 +11,8 @@ Thumbs.db
 private/
 .private/
 *.pdf
+# the one owner-authorised book file
+!public/book/la-formula-del-verso.pdf
 *.docx
 *.wav
 *.mp3

@@ -126,6 +126,8 @@ const en = {
   'book.excerptsHeading': 'Selected verses',
   'book.coverPending': 'Approved cover pending',
   'book.readHeading': 'Read the book',
+  'book.download': 'Read the book (PDF)',
+  'book.downloadMeta': 'Free · PDF · {pages} pages · Spanish',
   'book.readPending':
     'Details on where to read La Fórmula del Verso will be shared here once they are confirmed.',
 
@@ -267,6 +269,8 @@ const es: Record<UIKey, string> = {
   'book.excerptsHeading': 'Versos seleccionados',
   'book.coverPending': 'Portada aprobada pendiente',
   'book.readHeading': 'Leer el libro',
+  'book.download': 'Leer el libro (PDF)',
+  'book.downloadMeta': 'Gratis · PDF · {pages} páginas · Español',
   'book.readPending':
     'Los detalles sobre dónde leer La Fórmula del Verso se compartirán aquí cuando estén confirmados.',
 
