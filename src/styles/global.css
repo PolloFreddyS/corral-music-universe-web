@@ -90,12 +90,26 @@ svg {
 
 a {
   color: inherit;
+  text-decoration-line: underline;
+  text-decoration-color: color-mix(in srgb, currentColor 35%, transparent);
   text-decoration-thickness: 1px;
-  text-underline-offset: 0.22em;
+  text-underline-offset: 0.28em;
+  transition:
+    color var(--dur-1) ease,
+    text-decoration-color var(--dur-1) ease;
 }
 
 a:hover {
   color: #fff;
+  text-decoration-color: var(--oxblood-hover);
+}
+
+/* Smooth cross-page fades in browsers that support them. Every navigation is a
+   real page load, so each page applies its own Content-Security-Policy. */
+@media (prefers-reduced-motion: no-preference) {
+  @view-transition {
+    navigation: auto;
+  }
 }
 
 :focus-visible {

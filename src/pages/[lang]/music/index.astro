@@ -35,6 +35,9 @@ const available = filters.filter((f) => f.value === 'all' || releases.some((r) =
             {available.map((f, i) => (
               <button type="button" class="chip" data-filter={f.value} aria-pressed={i === 0 ? 'true' : 'false'}>
                 {t[f.key]}
+                <span class="count" aria-hidden="true">
+                  {f.value === 'all' ? releases.length : releases.filter((r) => r.data.type === f.value).length}
+                </span>
               </button>
             ))}
           </div>
@@ -87,7 +90,7 @@ const available = filters.filter((f) => f.value === 'all' || releases.some((r) =
       }),
     );
   }
-  document.addEventListener('astro:page-load', initFilters);
+  initFilters();
 </script>
 
 <style>
@@ -129,6 +132,23 @@ const available = filters.filter((f) => f.value === 'all' || releases.some((r) =
       background-color var(--dur-1) ease,
       color var(--dur-1) ease,
       border-color var(--dur-1) ease;
+  }
+
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+  }
+
+  .count {
+    font-variant-numeric: tabular-nums;
+    letter-spacing: 0;
+    opacity: 0.6;
+  }
+
+  .chip:focus-visible {
+    outline: 2px solid var(--oxblood-hover);
+    outline-offset: 3px;
   }
 
   .chip:hover {

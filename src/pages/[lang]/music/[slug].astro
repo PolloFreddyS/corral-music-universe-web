@@ -76,8 +76,7 @@ const jsonLd = {
         <p class="kicker">{t[`type.${d.type}`]}</p>
         <h1 class="title">{d.title}</h1>
         <p class="meta">
-          {t['release.released']}
-          <time datetime={d.releaseDate}>{formatDate(d.releaseDate, locale)}</time>
+          {`${t['release.released']} `}<time datetime={d.releaseDate}>{formatDate(d.releaseDate, locale)}</time>
         </p>
         {d.description && <p class="desc">{d.description[locale]}</p>}
         <ListenLinks links={links} locale={locale} />

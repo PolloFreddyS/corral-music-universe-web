@@ -114,8 +114,23 @@ try {
         await page.screenshot({ path: file, fullPage: true });
       }
     }
+    // Navigate by clicking, not only by loading URLs: styles must survive in-site navigation.
+    await page.goto(origin + '/en/', { waitUntil: 'networkidle0' });
+    for (const href of ['/en/music/', '/en/about/', '/en/book/']) {
+      consoleProblems.length = 0;
+      await Promise.all([
+        page.waitForNavigation({ waitUntil: 'networkidle0' }),
+        page.evaluate((h) => document.querySelector(`a[href="${h}"]`)?.click(), href),
+      ]);
+      const styled = await page.evaluate(() => getComputedStyle(document.querySelector('.site-header')).position === 'sticky');
+      const real = consoleProblems.filter((t) => !/Transition was aborted/.test(t));
+      if (!styled || real.length) {
+        console.error(`✗ ${vpName} click-through ${href}: ${styled ? '' : 'styles missing '}${real.join(' | ')}`);
+        failures++;
+      }
+    }
     await page.close();
-    console.log(`✓ ${vpName}: ${pages.length} pages audited`);
+    console.log(`✓ ${vpName}: ${pages.length} pages audited + click-through navigation`);
   }
 } finally {
   await browser.close();

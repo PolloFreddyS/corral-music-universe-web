@@ -78,9 +78,8 @@ const switchHref = swapLocale(here, other);
         btn.focus();
       }
     });
-    document.addEventListener('astro:after-swap', () => set(false));
   }
-  document.addEventListener('astro:page-load', initMenu);
+  initMenu();
 </script>
 
 <style>
