@@ -18,6 +18,11 @@
       "url": "https://open.spotify.com/album/5LI7diuBre9T41FDn79OE2",
       "verified": true,
       "verifiedOn": "2026-11-25"
+    },
+    "appleMusic": {
+      "url": "https://music.apple.com/us/album/piedra-por-piedra-single/6839373993",
+      "verified": true,
+      "verifiedOn": "2026-11-28"
     }
   },
   "spotifyEmbedId": "5LI7diuBre9T41FDn79OE2"
